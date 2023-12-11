@@ -1,6 +1,11 @@
 # FinleyJepson_T2A2
 
- T2A2 API WebServer
+T2A2 API WebServer
+
+## Links
+
+- [Trello](https://trello.com/b/lCRtPg9I/finleyjepsont2a2)
+- [GitHub](https://github.com/finleyjepson/FinleyJepson_T2A2)
 
 ## R1 - Identification of the problem
 
