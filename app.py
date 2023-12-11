@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+import hashlib
 
 load_dotenv()
 
@@ -15,7 +16,8 @@ class USER(db.Model):
     __tablename__ = 'USER'
     userid = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(35), nullable=False)
-    password = db.Column(db.String(45), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    salt = db.Column(db.String(255), nullable=False)  # Add the salt column
 
 class Session(db.Model):
     __tablename__ = 'session'
@@ -63,8 +65,11 @@ def register():
     if existing_user:
         return jsonify({'message': 'Username already exists'}), 400
 
+    salt = os.urandom(16)
+    hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+
     # Create a new user
-    new_user = USER(username=username, password=password)
+    new_user = USER(username=username, password=hashed_password, salt=salt)
     db.session.add(new_user)
     db.session.commit()
 
@@ -89,6 +94,14 @@ def manage_incomes():
 @app.route('/budgets', methods=['POST', 'GET', 'PUT', 'DELETE'])
 def manage_budgets():
     pass
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'message': 'Not found'}), 404
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return jsonify({'message': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     db.create_all()
