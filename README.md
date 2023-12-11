@@ -23,7 +23,7 @@ A personalized finance management tool can help users gain control over their fi
 
 ## R6 - ERD
 
-![Alt text](image.png)
+![Alt text](imgs/image.png)
 
 ## R7 - Third party services
 
