@@ -1,2 +1,2 @@
-FLASK_APP=FinleyJepson_T2A2
+FLASK_APP=__init__
 FLASK_DEBUG=True
