@@ -1,8 +1,7 @@
 from flask import jsonify, session, Blueprint
 from . import db
 from flask import request
-from .models import Income, Expense, Budget, USER
-from datetime import datetime
+from .models import Income, Expense, Budget
 from datetime import datetime
 
 app = Blueprint('app', __name__)
@@ -11,6 +10,56 @@ app = Blueprint('app', __name__)
 def manage_expenses():
     if 'userid' not in session:
         return jsonify({'message': 'Unauthorized'}), 401
+    match request.method:
+        case 'POST':
+            # Handle sending expenses
+            amount = request.args.get('amount')
+            category = request.args.get('category')
+            new_expense = Expense(
+                userid=session['userid'],
+                amount=amount,
+                category=category
+            )
+            db.session.add(new_expense)
+            db.session.commit()
+            return jsonify({'message': 'Expense sent successfully'}), 200
+        case 'DELETE':
+            # Handle deleting expenses
+            expense_id = request.args.get('expense_id')
+            expense = Expense.query.filter_by(expenseid=expense_id, userid=session['userid']).first()
+            if expense:
+                db.session.delete(expense)
+                db.session.commit()
+                return jsonify({'message': 'Expense deleted successfully'}), 200
+            else:
+                return jsonify({'message': 'Expense not found'}), 404
+        case 'PUT':
+            # Handle editing expenses
+            expense_id = request.args.get('expense_id')
+            expense = Expense.query.filter_by(expenseid=expense_id, userid=session['userid']).first()
+            if expense:
+                expense_data = request.args
+                expense.amount = expense_data.get('amount')
+                expense.category = expense_data.get('category')
+                db.session.commit()
+                return jsonify({'message': 'Income updated successfully'}), 200
+            else:
+                return jsonify({'message': 'Income not found'}), 404
+        case 'GET':
+            # Handle getting expenses
+            expenses = Expense.query.filter_by(userid=session['userid']).all()
+            expense_list = []
+            for expense in expenses:
+                expense_data = {
+                    'incomeid': expense.incomeid,
+                    'amount': expense.amount,
+                    'category': expense.category,
+                    'date': expense.date
+                }
+                expense_list.append(expense_data)
+            return jsonify(expense_list), 200
+        case _:
+            return jsonify({'message': 'Method not allowed'}), 405
 
 @app.route('/income', methods=['POST', 'GET', 'PUT', 'DELETE'])
 def manage_incomes():
