@@ -3,6 +3,7 @@ import os
 import hashlib
 from . import db
 from .models import USER
+import binascii
 
 auth = Blueprint('auth', __name__)
 
@@ -20,10 +21,13 @@ def register():
         return jsonify({'message': 'Username already exists'}), 400
 
     salt = os.urandom(16)
+    salt_hex = binascii.hexlify(salt).decode()  # Convert salt to hexadecimal string
+
     hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    hashed_password = binascii.hexlify(hashed_password).decode()
 
     # Create a new user
-    new_user = USER(username=username, password=hashed_password, salt=salt)
+    new_user = USER(username=username, password=hashed_password, salt=salt_hex)
     db.session.add(new_user)
     db.session.commit()
 
@@ -41,11 +45,14 @@ def login():
     if not user:
         return jsonify({'message': 'Invalid username or password'}), 401
 
-    hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), user.salt, 100000)
+    salt = binascii.unhexlify(user.salt.encode('utf-8'))  # Convert salt back to bytes
+
+    hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    hashed_password = binascii.hexlify(hashed_password).decode()
     if hashed_password != user.password:
         return jsonify({'message': 'Invalid username or password'}), 401
 
-    session['user_id'] = user.userid
+    session['userid'] = user.userid
 
     return jsonify({'message': 'Login successful'}), 200
 
