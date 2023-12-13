@@ -19,10 +19,9 @@ class Expense(db.Model):
     __tablename__ = 'expense'
     expenseid = db.Column(db.Integer, primary_key=True)
     userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
-    amount = db.Column(db.DECIMAL(10, 2))
+    amount = db.Column(db.Integer)
     category = db.Column(db.String(255))
     date = db.Column(db.DATE)
-    notes = db.Column(db.TEXT)
 
 class Income(db.Model):
     __tablename__ = 'income'
@@ -36,6 +35,6 @@ class Budget(db.Model):
     __tablename__ = 'budget'
     budgetid = db.Column(db.Integer, primary_key=True)
     userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
-    amount = db.Column(db.DECIMAL(10, 2))
+    amount = db.Column(db.Integer)
     category = db.Column(db.String(255))
     timeframe = db.Column(db.String(255))
