@@ -12,6 +12,7 @@ def register():
     username = request.args.get('username')
     password = request.args.get('password')
 
+    # Check if username and password were provided
     if not username or not password:
         return jsonify({'message': 'Username and password are required'}), 400
 
@@ -20,9 +21,11 @@ def register():
     if existing_user:
         return jsonify({'message': 'Username already exists'}), 400
 
+    # Generate a random salt
     salt = os.urandom(16)
     salt_hex = binascii.hexlify(salt).decode()  # Convert salt to hexadecimal string
 
+    # Hash the password with the salt
     hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
     hashed_password = binascii.hexlify(hashed_password).decode()
 
