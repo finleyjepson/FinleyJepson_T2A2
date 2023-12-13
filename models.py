@@ -9,16 +9,16 @@ class USER(db.Model):
 
 class Session(db.Model):
     __tablename__ = 'session'
-    sessionID = db.Column(db.Integer, primary_key=True)
-    userID = db.Column(db.Integer, db.ForeignKey('user.userid'), nullable=False)
+    sessionid = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
     token = db.Column(db.String(255))
     startTime = db.Column(db.TIMESTAMP)
     endTime = db.Column(db.TIMESTAMP)
 
 class Expense(db.Model):
     __tablename__ = 'expense'
-    expenseID = db.Column(db.Integer, primary_key=True)
-    userID = db.Column(db.Integer, db.ForeignKey('user.userid'), nullable=False)
+    expenseid = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
     amount = db.Column(db.DECIMAL(10, 2))
     category = db.Column(db.String(255))
     date = db.Column(db.DATE)
@@ -26,16 +26,16 @@ class Expense(db.Model):
 
 class Income(db.Model):
     __tablename__ = 'income'
-    incomeID = db.Column(db.Integer, primary_key=True)
-    userID = db.Column(db.Integer, db.ForeignKey('user.userid'), nullable=False)
-    amount = db.Column(db.DECIMAL(10, 2))
+    incomeid = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
+    amount = db.Column(db.Integer)
     source = db.Column(db.String(255))
     date = db.Column(db.DATE)
 
 class Budget(db.Model):
     __tablename__ = 'budget'
-    budgetID = db.Column(db.Integer, primary_key=True)
-    userID = db.Column(db.Integer, db.ForeignKey('user.userid'), nullable=False)
+    budgetid = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
     amount = db.Column(db.DECIMAL(10, 2))
     category = db.Column(db.String(255))
-    timeFrame = db.Column(db.String(255))
+    timeframe = db.Column(db.String(255))
