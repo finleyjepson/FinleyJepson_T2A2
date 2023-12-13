@@ -4,8 +4,10 @@ import hashlib
 from . import db
 from .models import USER
 import binascii
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 auth = Blueprint('auth', __name__)
+jwt = JWTManager()
 
 @auth.route('/register', methods=['POST'])
 def register():
@@ -52,15 +54,15 @@ def login():
 
     hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
     hashed_password = binascii.hexlify(hashed_password).decode()
-    if hashed_password != user.password:
-        return jsonify({'message': 'Invalid username or password'}), 401
 
-    session['userid'] = user.userid
+    if hashed_password == user.password:
+        access_token = create_access_token(identity=username)
+        return jsonify(access_token=access_token), 200
 
-    return jsonify({'message': 'Login successful'}), 200
-
+    return jsonify({'message': 'Invalid username or password'}), 401
 
 @auth.route('/logout', methods=['POST'])
+@jwt_required()
 def logout():
     session.clear()
     return jsonify({'message': 'Logout successful'}), 200

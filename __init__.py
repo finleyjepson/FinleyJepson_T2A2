@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
 from dotenv import load_dotenv
+from flask_jwt_extended import JWTManager
 
 load_dotenv()
 
@@ -9,6 +10,8 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
+
+    jwt = JWTManager(app)
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')

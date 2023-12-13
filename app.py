@@ -3,12 +3,15 @@ from . import db
 from flask import request
 from .models import Income, Expense, Budget
 from datetime import datetime
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 app = Blueprint('app', __name__)
 
 @app.route('/expense', methods=['POST', 'GET', 'PUT', 'DELETE'])
+@jwt_required
 def manage_expenses():
-    if 'userid' not in session:
+    current_user = get_jwt_identity()
+    if not current_user:
         return jsonify({'message': 'Unauthorized'}), 401
     match request.method:
         case 'POST':
@@ -62,9 +65,11 @@ def manage_expenses():
             return jsonify({'message': 'Method not allowed'}), 405
 
 @app.route('/income', methods=['POST', 'GET', 'PUT', 'DELETE'])
+@jwt_required
 def manage_incomes():
-    if 'userid' not in session:
-        return jsonify({'message': 'Unauthorized'}), 401  
+    current_user = get_jwt_identity()
+    if not current_user:
+        return jsonify({'message': 'Unauthorized'}), 401
     match request.method:
         case 'POST':
             # Handle sending income
@@ -117,8 +122,10 @@ def manage_incomes():
             return jsonify({'message': 'Method not allowed'}), 405
 
 @app.route('/budget', methods=['POST', 'GET', 'PUT', 'DELETE'])
+@jwt_required
 def manage_budgets():
-    if 'userid' not in session:
+    current_user = get_jwt_identity()
+    if not current_user:
         return jsonify({'message': 'Unauthorized'}), 401
 
 @app.errorhandler(404)
