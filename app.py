@@ -8,7 +8,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 app = Blueprint('app', __name__)
 
 @app.route('/expense', methods=['POST', 'GET', 'PUT', 'DELETE'])
-@jwt_required
+@jwt_required()
 def manage_expenses():
     current_user = get_jwt_identity()
     if not current_user:
@@ -21,7 +21,8 @@ def manage_expenses():
             new_expense = Expense(
                 userid=session['userid'],
                 amount=amount,
-                category=category
+                category=category,
+                date=datetime.now()
             )
             db.session.add(new_expense)
             db.session.commit()
@@ -65,20 +66,19 @@ def manage_expenses():
             return jsonify({'message': 'Method not allowed'}), 405
 
 @app.route('/income', methods=['POST', 'GET', 'PUT', 'DELETE'])
-@jwt_required
+@jwt_required()
 def manage_incomes():
     current_user = get_jwt_identity()
-    if not current_user:
-        return jsonify({'message': 'Unauthorized'}), 401
     match request.method:
         case 'POST':
             # Handle sending income
             amount = request.args.get('amount')
             source = request.args.get('source')
             new_income = Income(
-                userid=session['userid'],
+                userid=current_user,
                 amount=amount,
-                source=source
+                source=source,
+                date=datetime.now()
             )
             db.session.add(new_income)
             db.session.commit()
@@ -86,7 +86,7 @@ def manage_incomes():
         case 'DELETE':
             # Handle deleting income
             income_id = request.args.get('income_id')
-            income = Income.query.filter_by(incomeid=income_id, userid=session['userid']).first()
+            income = Income.query.filter_by(incomeid=income_id, userid=current_user).first()
             if income:
                 db.session.delete(income)
                 db.session.commit()
@@ -96,7 +96,7 @@ def manage_incomes():
         case 'PUT':
             # Handle editing income
             income_id = request.args.get('income_id')
-            income = Income.query.filter_by(incomeid=income_id, userid=session['userid']).first()
+            income = Income.query.filter_by(incomeid=income_id, userid=current_user).first()
             if income:
                 income_data = request.args
                 income.amount = income_data.get('amount')
@@ -107,7 +107,7 @@ def manage_incomes():
                 return jsonify({'message': 'Income not found'}), 404
         case 'GET':
             # Handle getting income
-            incomes = Income.query.filter_by(userid=session['userid']).all()
+            incomes = Income.query.filter_by(userid=current_user).all()
             income_list = []
             for income in incomes:
                 income_data = {
@@ -122,11 +122,32 @@ def manage_incomes():
             return jsonify({'message': 'Method not allowed'}), 405
 
 @app.route('/budget', methods=['POST', 'GET', 'PUT', 'DELETE'])
-@jwt_required
+@jwt_required()
 def manage_budgets():
     current_user = get_jwt_identity()
     if not current_user:
         return jsonify({'message': 'Unauthorized'}), 401
+
+    if request.method == 'POST':
+        # Get the budget data from the request
+        budget_data = request.get_json()
+
+        # Create a new budget object
+        budget = Budget(
+            user_id=current_user,
+            name=budget_data['name'],
+            amount=budget_data['amount'],
+            category=budget_data['category']
+        )
+
+        # Add the budget to the database
+        db.session.add(budget)
+        db.session.commit()
+
+        return jsonify({'message': 'Budget created successfully'}), 201
+
+    # Handle other HTTP methods here (GET, PUT, DELETE)
+
 
 @app.errorhandler(404)
 def not_found(error):
