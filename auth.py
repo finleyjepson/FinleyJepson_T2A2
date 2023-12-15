@@ -4,15 +4,15 @@ import hashlib
 from . import db
 from .models import USER
 import binascii
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token
+from datetime import timedelta
 
 auth = Blueprint('auth', __name__)
-jwt = JWTManager()
 
 @auth.route('/register', methods=['POST'])
 def register():
-    username = request.args.get('username')
-    password = request.args.get('password')
+    username = request.json['username']
+    password = request.json['password']
 
     # Check if username and password were provided
     if not username or not password:
@@ -56,10 +56,12 @@ def login():
     hashed_password = binascii.hexlify(hashed_password).decode()
 
     if hashed_password == user.password:
-        access_token = create_access_token(identity=username)
-        return jsonify(access_token=access_token), 200
-
-    return jsonify({'message': 'Invalid username or password'}), 401
+        expiry = timedelta(days=1)
+        access_token = create_access_token(identity=str(user.userid), expires_delta=expiry)
+        refresh_token = create_refresh_token(identity=str(user.userid), expires_delta=expiry)
+        return jsonify({"message": "Logged In", "user": user.username, "tokens":{"access_token": access_token, "refresh_token": refresh_token}}), 200
+    else:
+        return jsonify({'message': 'Invalid username or password'}), 401
 
 @auth.route('/logout', methods=['POST'])
 @jwt_required()
