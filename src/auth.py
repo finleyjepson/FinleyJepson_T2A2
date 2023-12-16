@@ -104,14 +104,6 @@ def delete_user():
     
     return jsonify({'message': 'Not authorized to access this resource'}), 401
 
-
-def is_admin():
-    current_user = get_jwt_identity()
-    stmt = db.select(USER).filter_by(userid=current_user)
-    user = db.session.scalar(stmt)
-    if not (user.is_admin):
-        jsonify({'message': 'Not authorized to access this resource'}), 401
-
 @auth.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
