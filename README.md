@@ -11,13 +11,19 @@ T2A2 API WebServer
 
 In a terminal, run the following commands:
 
-- `python3 -m venv venv`
-- `venv/Scripts/activate` (Windows) or `source venv/bin/activate` (MacOS/Linux)
-- `pip install -r requirements.txt`
-- `flask run`
-- `flask init-db`
-- `flask seed-db`
-- Open `Insomnia` or `Postman` and use localhost:5000 as the base URL
+1. `python3 -m venv venv`
+2. `venv/Scripts/activate` (Windows) or `source venv/bin/activate` (MacOS/Linux)
+3. `pip install -r requirements.txt`
+4. `flask run`
+5. `flask init-db`
+6. `flask seed-db`
+
+### Testing/Usage
+
+Open Insomnia or Postman and import the `endpoints.json` file to get all endpoints imported.
+  or open `http://localhost:5000/` in Insomnia or Postman.
+
+In Insomnia or Postman import the `endpoints.json` file to get the endpoints imported.
 
 ## R1 - Identification of the problem
 
@@ -61,6 +67,8 @@ Returns:
 - A success message if the registration is successful.
 - An error message if the username already exists or if the username and password are not provided.
 
+---------------------------------
+
 ### `POST /login`
 
 Description: Logs in a user.
@@ -75,7 +83,11 @@ Returns:
 - A JWT token and the username if the login is successful.
 - An error message if the username and password are not provided or if they are incorrect.
 
+---------------------------------
+
 ### `POST /logout`
+
+**This endpoint is protected and requires a valid JWT token.**
 
 Description: Logs out a user.
 
@@ -83,24 +95,133 @@ Parameters: None
 
 Returns: A success message.
 
-### `POST /income`, `GET /income`, `PUT /income`, `DELETE /income`
+---------------------------------
 
-Description: Manages user incomes. Depending on the method, it can add a new income, retrieve all incomes, update an income, or delete an income.
+### **`/income`**
+
+**This endpoint is protected and requires a valid JWT token.**
+
+#### `POST`
+
+Description: Adds a new income.
 
 Parameters:
 
 - `amount` (number): The amount of the income.
 - `source` (string): The source of the income.
-- `income_id` (string): The ID of the income to update or delete.
 
 Returns:
 
 - A success message if the operation is successful.
 - An error message if the operation fails.
 
-### `POST /budget`, `GET /budget`, `PUT /budget`, `DELETE /budget`
+### `GET`
 
-Description: Manages user budgets. Depending on the method, it can add a new budget, retrieve all budgets, update a budget, or delete a budget.
+Description: Retrieves all incomes.
+
+Returns:
+
+- A list of all incomes if the operation is successful.
+- An error message if the operation fails.
+
+### `PUT`
+
+Description: Updates an income.
+
+Parameters:
+
+- `amount` (number): The updated amount of the income.
+- `source` (string): The updated source of the income.
+- `income_id` (string): The ID of the income to update.
+
+Returns:
+
+- A success message if the operation is successful.
+- An error message if the operation fails.
+
+### `DELETE`
+
+Description: Deletes an income.
+
+Parameters:
+
+- `income_id` (string): The ID of the income to delete.
+
+Returns:
+
+- A success message if the operation is successful.
+- An error message if the operation fails.
+
+---------------------------------
+
+### **`/expense`**
+
+**This endpoint is protected and requires a valid JWT token.**
+
+#### `POST`
+
+Description: Adds a new expense.
+
+Parameters:
+
+- `amount` (number): The amount of the expense.
+- `category` (string): The category of the expense.
+
+Returns:
+
+- A success message if the operation is successful.
+- An error message if the operation fails.
+
+#### `GET`
+
+Description: Retrieves all expenses.
+
+Parameters: 
+
+- `expense_id` (string): The ID of the expense to retrieve. If not provided, all expenses will be retrieved.
+
+Returns:
+
+- A list of all expenses if the operation is successful.
+- An error message if the operation fails.
+
+#### `PUT`
+
+Description: Updates an expense.
+
+Parameters:
+
+- `amount` (number): The updated amount of the expense.
+- `category` (string): The updated category of the expense.
+- `expense_id` (string): The ID of the expense to update.
+
+Returns:
+
+- A success message if the operation is successful.
+- An error message if the operation fails.
+
+#### `DELETE`
+
+Description: Deletes an expense.
+
+Parameters:
+
+- `expense_id` (string): The ID of the expense to delete.
+
+Returns:
+
+- A success message if the operation is successful.
+- An error message if the operation fails.
+
+---------------------------------
+
+### **`/budget`**
+
+**This endpoint is protected and requires a valid JWT token.**
+
+#### `POST`
+
+Description: Adds a new budget.
 
 Parameters:
 
@@ -113,15 +234,45 @@ Returns:
 - A success message if the operation is successful.
 - An error message if the operation fails.
 
-### `POST /expense`, `GET /expense`, `PUT /expense`, `DELETE /expense`
+#### `GET`
 
-Description: Manages user expenses. Depending on the method, it can add a new expense, retrieve all expenses, update an expense, or delete an expense.
+**This endpoint is protected and requires a valid JWT token.**
+
+Description: Retrieves all budgets.
+
+Parameters: None
+
+Returns:
+
+- A list of all budgets if the operation is successful.
+- An error message if the operation fails.
+
+#### `PUT`
+
+**This endpoint is protected and requires a valid JWT token.**
+
+Description: Updates a budget.
 
 Parameters:
 
-- `amount` (number): The amount of the expense.
-- `category` (string): The category of the expense.
-- `expense_id` (string): The ID of the expense to update or delete.
+- `name` (string): The updated name of the budget.
+- `amount` (number): The updated amount of the budget.
+- `category` (string): The updated category of the budget.
+
+Returns:
+
+- A success message if the operation is successful.
+- An error message if the operation fails.
+
+#### `DELETE`
+
+**This endpoint is protected and requires a valid JWT token.**
+
+Description: Deletes a budget.
+
+Parameters:
+
+- `budget_id` (string): The ID of the budget to delete.
 
 Returns:
 
@@ -164,11 +315,52 @@ The models defined in this Python script represent tables in a relational databa
 
 1. `USER`: This model represents a user in the system. It doesn't have a direct relationship with any other model but serves as a foreign key in the `Expense`, `Income`, and `Budget` models. This indicates that each user can have multiple expenses, incomes, and budgets.
 
+```python
+class USER(db.Model):
+    __tablename__ = 'USER'
+    userid = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(35), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    salt = db.Column(db.String(255), nullable=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
+```
+
 2. `Expense`: This model represents an expense entry. It has a many-to-one relationship with the `USER` model via the `userid` foreign key. This means that each expense is associated with a specific user.
+
+```python
+class Expense(db.Model):
+    __tablename__ = 'expense'
+    expenseid = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
+    amount = db.Column(db.Integer)
+    category = db.Column(db.String(255))
+    date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
+```
 
 3. `Income`: This model represents an income entry. Similar to `Expense`, it also has a many-to-one relationship with the `USER` model via the `userid` foreign key. Each income is associated with a specific user.
 
+```python
+class Income(db.Model):
+    __tablename__ = 'income'
+    incomeid = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
+    amount = db.Column(db.Integer)
+    source = db.Column(db.String(255))
+    date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
+```
+
 4. `Budget`: This model represents a budget entry. It also has a many-to-one relationship with the `USER` model via the `userid` foreign key. Each budget is associated with a specific user.
+
+```python
+class Budget(db.Model):
+    __tablename__ = 'budgets'
+    budgetid = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
+    total_budget = db.Column(db.Integer, nullable=False)
+    time_frame = db.Column(db.String(50))
+    creation_date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
+    last_modified_date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
+```
 
 In summary, the `USER` model is related to the `Expense`, `Income`, and `Budget` models in a one-to-many relationship. Each user can have multiple expenses, incomes, and budgets, but each expense, income, and budget entry is associated with exactly one user.
 
