@@ -164,7 +164,7 @@ def create_budget():
 @jwt_required()
 def get_budget():
     # Get the budgetid from the request arguments
-    budget_id = request.args.get('budgetid')
+    budget_id = request.args.get('budget_id')
     # Get the userid from the JWT token
     current_user = get_jwt_identity()
 
@@ -196,7 +196,7 @@ def update_budget():
         # Update the budget amount and time frame
         budget.amount = budget_data.get('amount')
         budget.time_frame = budget_data.get('time_frame')
-
+        budget.last_modified_date = date.now()
         # Commit the changes to the database
         db.session.commit()
 
