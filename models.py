@@ -14,7 +14,16 @@ class Expense(db.Model):
     userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
     amount = db.Column(db.Integer)
     category = db.Column(db.String(255))
-    date = db.Column(db.DATE)
+    date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
+
+    def to_dict(self):
+        return {
+            'expenseid': self.expenseid,
+            'userid': self.userid,
+            'amount': self.amount,
+            'category': self.category,
+            'date': self.date
+        }
 
 class Income(db.Model):
     __tablename__ = 'income'
@@ -22,7 +31,16 @@ class Income(db.Model):
     userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
     amount = db.Column(db.Integer)
     source = db.Column(db.String(255))
-    date = db.Column(db.DATE)
+    date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
+
+    def to_dict(self):
+        return {
+            'incomeid': self.incomeid,
+            'userid': self.userid,
+            'amount': self.amount,
+            'source': self.source,
+            'date': self.date
+        }
     
 
 class Budget(db.Model):
@@ -40,6 +58,6 @@ class Budget(db.Model):
             'userid': self.userid,
             'total_budget': self.total_budget,
             'time_frame': self.time_frame,
-            'creation_date': self.creation_date.isoformat(),
-            'last_modified_date': self.last_modified_date.isoformat()
+            'creation_date': self.creation_date,
+            'last_modified_date': self.last_modified_date
         }
