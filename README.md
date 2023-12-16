@@ -28,11 +28,11 @@ In Insomnia or Postman import the `endpoints.json` file to get the endpoints imp
 
 ## R1 - Identification of the problem
 
-Many individuals struggle with tracking their expenses, creating budgets, and understanding their financial habits.
+In today's fast-paced world, many individuals face challenges in managing their personal finances effectively. The problem is multifaceted, involving difficulties in tracking daily expenses, understanding spending patterns, and adhering to a budget. This lack of financial oversight often leads to unnecessary overspending and inadequate savings, resulting in financial stress and insecurity. The problem is exacerbated by the absence of user-friendly tools that cater to individual financial management needs. Many existing solutions are either too complex or not personalized, making it challenging for the average person to maintain a clear and continuous overview of their financial health.
 
 ## R2 - Why is it a problem that needs solving?
 
-A personalized finance management tool can help users gain control over their finances, encouraging better spending habits and financial planning.
+Effective financial management is crucial for achieving long-term financial stability and security. Without a clear understanding of their financial situation, individuals are prone to making poor spending decisions, accumulating debt, and failing to save for future needs. This problem has wider implications, affecting not just individual financial health but also overall well-being and life satisfaction. A solution that simplifies and personalizes financial tracking and budgeting can empower individuals to make informed financial decisions. By providing insights into spending habits and offering tools for budget management, such a solution can foster financial discipline, reduce stress, and promote a more secure financial future.
 
 ## R3 - Database system
 
@@ -281,6 +281,56 @@ Returns:
 - An error message if the operation fails.
 
 ## R6 - ERD
+The Entity-Relationship Diagram (ERD) represents the database schema for the Flask server application that manages users, expenses, incomes, and budgets.
+
+1. **USER Model:**
+   - **Table Name:** `USER`
+   - **Attributes:**
+     - `userid`: Primary Key (PK), Integer. Uniquely identifies each user.
+     - `username`: String(35). Stores the username of the user.
+     - `password`: String(255). Stores the encrypted password.
+     - `salt`: String(255). Used for password hashing.
+     - `is_admin`: Boolean. Indicates whether the user has administrative privileges.
+   - **Associations:**
+     - One-to-Many with `Expense`: A user can have multiple expenses.
+     - One-to-Many with `Income`: A user can have multiple income records.
+     - One-to-Many with `Budget`: A user can create multiple budgets.
+
+2. **Expense Model:**
+   - **Table Name:** `expense`
+   - **Attributes:**
+     - `expenseid`: PK, Integer. Uniquely identifies each expense.
+     - `userid`: Foreign Key (FK), Integer. Links to the `USER` table.
+     - `amount`: Integer. The amount of the expense.
+     - `category`: String(255). The category of the expense.
+     - `date`: DATE. The date of the expense.
+   - **Association:**
+     - Many-to-One with `USER`: Each expense is associated with a specific user.
+
+3. **Income Model:**
+   - **Table Name:** `income`
+   - **Attributes:**
+     - `incomeid`: PK, Integer. Uniquely identifies each income record.
+     - `userid`: FK, Integer. Links to the `USER` table.
+     - `amount`: Integer. The amount of income.
+     - `source`: String(255). The source of the income.
+     - `date`: DATE. The date of the income record.
+   - **Association:**
+     - Many-to-One with `USER`: Each income record is associated with a specific user.
+
+4. **Budget Model:**
+   - **Table Name:** `budgets`
+   - **Attributes:**
+     - `budgetid`: PK, Integer. Uniquely identifies each budget.
+     - `userid`: FK, Integer. Links to the `USER` table.
+     - `total_budget`: Integer. The total amount of the budget.
+     - `time_frame`: String(50). The time frame of the budget.
+     - `creation_date`: DATE. The date when the budget was created.
+     - `last_modified_date`: DATE. The date when the budget was last modified.
+   - **Association:**
+     - Many-to-One with `USER`: Each budget is associated with a specific user.
+
+In the Flask application, these models and associations would be used to manage data related to users, their expenses, incomes, and budgets. The `USER` model acts as the central entity with relationships to the other models, reflecting the user-centric nature of the application. The foreign key relationships ensure data integrity and enable efficient querying and reporting of user-specific financial data.
 
 ![Alt text](docs/imgs/d_lJKsoycp.svg)
 
@@ -312,7 +362,7 @@ Returns:
 
 ## R8 - Relationships
 
-The models defined in this Python script represent tables in a relational database using SQLAlchemy ORM. Here's a brief description of their relationships:
+The models defined in `models.py` represent tables in a relational database using SQLAlchemy ORM. Here's a brief description of their relationships:
 
 1. `USER`: This model represents a user in the system. It doesn't have a direct relationship with any other model but serves as a foreign key in the `Expense`, `Income`, and `Budget` models. This indicates that each user can have multiple expenses, incomes, and budgets.
 
