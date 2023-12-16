@@ -8,6 +8,16 @@ load_dotenv()
 
 db = SQLAlchemy()
 
+from flask import Flask, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from os import environ
+from dotenv import load_dotenv
+from flask_jwt_extended import JWTManager
+
+load_dotenv()
+
+db = SQLAlchemy()
+
 def create_app():
     app = Flask(__name__)
     jwt = JWTManager(app)
@@ -17,6 +27,27 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
+
+    # Error handling
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({'message': 'Bad Request'}), 400
+
+    @app.errorhandler(401)
+    def unauthorized(error):
+        return jsonify({'message': 'Unauthorized'}), 401
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({'message': 'Not Found'}), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        return jsonify({'message': 'Internal Server Error'}), 500
+    
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({'message': 'Method Not Allowed'}), 405
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
