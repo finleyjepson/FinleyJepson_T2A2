@@ -280,6 +280,82 @@ Returns:
 - A success message if the operation is successful.
 - An error message if the operation fails.
 
+---------------------------------
+
+### Error Handling for Endpoints
+
+Examples of error handling code:
+
+from `app.py` lines `31-50` :
+
+```python
+    # Error handling
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({'message': 'Bad Request'}), 400
+
+    @app.errorhandler(401)
+    def unauthorized(error):
+        return jsonify({'message': 'Unauthorized'}), 401
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({'message': 'Not Found'}), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        return jsonify({'message': 'Internal Server Error'}), 500
+    
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({'message': 'Method Not Allowed'}), 405
+```
+
+```python
+    return jsonify({'message': 'Income deleted successfully'}), 200
+else:
+    return jsonify({'message': 'Income not found'}), 404
+```
+
+^ This error handling code is used to return a message to the user if query returns no results
+
+```python
+current_user = get_jwt_identity()
+if not current_user:
+    return jsonify({'message': 'Unauthorized'}), 401
+```
+
+^ This error handling code is used to return a message to the user if no JWT token is provided
+
+```python
+if not (user.is_admin):
+    jsonify({'message': 'Not authorized to access this resource'}), 401
+```
+
+^ This error handling code is used to return a message to the user if the user does not possess is_admin=True
+
+```python
+else:
+    return jsonify({'message': 'Invalid username or password'}), 401
+```
+
+^ This error handling code is used to return a message to the user if the username or password is incorrect
+
+```python
+# Check that username and password are provided
+if not username or not password:
+    return jsonify({'message': 'Username and password are required'}), 400
+```
+
+^ This error handling code is used to return a message to the user if the username or password is not provided
+
+```python
+if existing_user:
+    return jsonify({'message': 'Username already exists'}), 400
+```
+
+^ This error handling code is used to return a message to the user if the username already exists
+
 ## R6 - ERD
 The Entity-Relationship Diagram (ERD) represents the database schema for the Flask server application that manages users, expenses, incomes, and budgets.
 
