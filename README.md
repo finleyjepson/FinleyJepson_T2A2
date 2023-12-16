@@ -15,7 +15,7 @@ In a terminal, run the following commands:
 2. `python3 -m venv venv`
 3. `venv/Scripts/activate` (Windows) or `source venv/bin/activate` (MacOS/Linux)
 4. `pip install -r requirements.txt`
-5. `flask run`
+5. `flask run` (Ctrl+C to stop the server)
 6. `flask init-db`
 7. `flask seed-db`
 
