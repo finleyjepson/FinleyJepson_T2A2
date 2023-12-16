@@ -7,6 +7,18 @@ T2A2 API WebServer
 - [Trello](https://trello.com/b/lCRtPg9I/finleyjepsont2a2)
 - [GitHub](https://github.com/finleyjepson/FinleyJepson_T2A2)
 
+## Installation
+
+In a terminal, run the following commands:
+
+- `python3 -m venv venv`
+- `venv/Scripts/activate` (Windows) or `source venv/bin/activate` (MacOS/Linux)
+- `pip install -r requirements.txt`
+- `flask run`
+- `flask init-db`
+- `flask seed-db`
+- Open `Insomnia` or `Postman` and use localhost:5000 as the base URL
+
 ## R1 - Identification of the problem
 
 Many individuals struggle with tracking their expenses, creating budgets, and understanding their financial habits.
@@ -118,12 +130,50 @@ Returns:
 
 ## R6 - ERD
 
-![Alt text](imgs/image.png)
+![Alt text](docs/imgs/d_lJKsoycp.svg)
 
 ## R7 - Third party services
 
+### ElephantSQL
+
+- ElephantSQL is a PostgreSQL database-as-a-service provider. It offers a free plan with 20 MB of storage and 20 concurrent connections. It also provides a web-based admin tool for managing databases. ElephantSQL is used to host the PostgreSQL database for this application.
+
+### Flask
+
+- Flask is a Python web framework that provides tools, libraries, and technologies for building web applications. It offers a simple yet powerful API that allows developers to create web applications quickly and efficiently. Flask is used to build the API for this application.
+
+### SQLAlchemy
+
+- SQLAlchemy is a Python SQL toolkit and Object-Relational Mapper (ORM) that provides a comprehensive set of tools for working with databases. It offers a high-level abstraction layer that allows developers to interact with databases using Python instead of SQL. SQLAlchemy is used to implement the database models for this application.
+
+### Psycopg2
+
+- Psycopg2 is a PostgreSQL adapter for Python. It provides a Python DB-API 2.0-compliant interface for developers to interact with PostgreSQL databases. Psycopg2 is used to connect to the PostgreSQL database for this application.
+
+### Flask-JWT-Extended
+
+- Flask-JWT-Extended is a Flask extension that provides JSON Web Token (JWT) support for Flask applications. It offers a simple interface for creating and verifying JWTs, as well as protecting endpoints with JWTs. Flask-JWT-Extended is used to implement user authentication for this application.
+
+### hashlib
+
+- hashlib is a Python library that provides cryptographic hash functions. It offers a wide range of hash algorithms, including MD5, SHA-1, SHA-256, and SHA-512. hashlib is used to hash user passwords for this application.
+
 ## R8 - Relationships
 
+The models defined in this Python script represent tables in a relational database using SQLAlchemy ORM. Here's a brief description of their relationships:
+
+1. `USER`: This model represents a user in the system. It doesn't have a direct relationship with any other model but serves as a foreign key in the `Expense`, `Income`, and `Budget` models. This indicates that each user can have multiple expenses, incomes, and budgets.
+
+2. `Expense`: This model represents an expense entry. It has a many-to-one relationship with the `USER` model via the `userid` foreign key. This means that each expense is associated with a specific user.
+
+3. `Income`: This model represents an income entry. Similar to `Expense`, it also has a many-to-one relationship with the `USER` model via the `userid` foreign key. Each income is associated with a specific user.
+
+4. `Budget`: This model represents a budget entry. It also has a many-to-one relationship with the `USER` model via the `userid` foreign key. Each budget is associated with a specific user.
+
+In summary, the `USER` model is related to the `Expense`, `Income`, and `Budget` models in a one-to-many relationship. Each user can have multiple expenses, incomes, and budgets, but each expense, income, and budget entry is associated with exactly one user.
+
 ## R9 - Database relations
+
+In this Flask application, A PostgreSQL database is implemented using the SQLAlchemy ORM. The database itself is hosted on ElephantSQL, a PostgreSQL database-as-a-service provider. The database is accessed via the `psycopg2` Python library, which is a PostgreSQL adapter for Python. The database consists of four tables: `USER`, `Expense`, `Income`, and `Budget`. The `USER` table stores user information, including the username and password. The `Expense`, `Income`, and `Budget` tables store expense, income, and budget entries, respectively. Each of these tables has a foreign key referencing the `USER` table, indicating that each expense, income, and budget entry is associated with a specific user.
 
 ## R10 - Task Allocation & Tracking
