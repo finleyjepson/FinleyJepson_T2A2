@@ -4,6 +4,7 @@ from flask import request
 from .models import Income, Expense, Budget
 from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import extract
 
 app = Blueprint('app', __name__)
 
@@ -121,33 +122,58 @@ def manage_incomes():
         case _:
             return jsonify({'message': 'Method not allowed'}), 405
 
-@app.route('/budget', methods=['POST', 'GET', 'PUT', 'DELETE'])
+@app.route('/budget', methods=['POST'])
 @jwt_required()
-def manage_budgets():
+def create_budget():
     current_user = get_jwt_identity()
-    if not current_user:
-        return jsonify({'message': 'Unauthorized'}), 401
+    current_year, current_month = datetime.now().year, datetime.now().month
 
-    if request.method == 'POST':
-        # Get the budget data from the request
-        budget_data = request.get_json()
+    incomes = Income.query.filter(
+                    Income.userid == current_user, 
+                    extract('year', Income.date) == current_year, 
+                    extract('month', Income.date) == current_month
+                ).all()
+    total_income = sum(Income.amount for Income in incomes)
 
-        # Create a new budget object
-        budget = Budget(
-            user_id=current_user,
-            name=budget_data['name'],
-            amount=budget_data['amount'],
-            category=budget_data['category']
-        )
+    expenses = Expense.query.filter(
+                    Expense.userid == current_user, 
+                    extract('year', Expense.date) == current_year, 
+                    extract('month', Expense.date) == current_month
+                ).all()
+    total_expense = sum(Expense.amount for Expense in expenses)
 
-        # Add the budget to the database
-        db.session.add(budget)
-        db.session.commit()
+    total_budget = total_income - total_expense
 
-        return jsonify({'message': 'Budget created successfully'}), 201
+    new_budget = Budget(total_budget=total_budget, time_frame=current_month)
+    db.session.add(new_budget)
+    db.session.commit()
 
-    # Handle other HTTP methods here (GET, PUT, DELETE)
+    return jsonify(new_budget), 201
 
+@app.route('/budget', methods=['GET'])
+@jwt_required()
+def get_budget():
+    budget_id = request.args.get('id')
+    budget = Budget.query.get(budget_id)
+    return jsonify(budget), 200
+
+@app.route('/budget/<int:id>', methods=['PUT'])
+@jwt_required()
+def update_budget(id):
+    data = request.get_json()
+    budget = Budget.query.get(id)
+    budget.total_budget = data['total_budget']
+    budget.time_frame = data['time_frame']
+    db.session.commit()
+    return jsonify(budget), 200
+
+@app.route('/budget/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_budget(id):
+    budget = Budget.query.get(id)
+    db.session.delete(budget)
+    db.session.commit()
+    return jsonify({'message': 'Budget deleted'}), 200
 
 @app.errorhandler(404)
 def not_found(error):
