@@ -29,7 +29,17 @@ class Budget(db.Model):
     __tablename__ = 'budgets'
     budgetid = db.Column(db.Integer, primary_key=True)
     userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
-    total_budget = db.Column(db.DECIMAL(10, 2), nullable=False)
+    total_budget = db.Column(db.Integer, nullable=False)
     time_frame = db.Column(db.String(50))
     creation_date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
     last_modified_date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
+
+    def to_dict(self):
+        return {
+            'budgetid': self.budgetid,
+            'userid': self.userid,
+            'total_budget': self.total_budget,
+            'time_frame': self.time_frame,
+            'creation_date': self.creation_date.isoformat(),
+            'last_modified_date': self.last_modified_date.isoformat()
+        }
