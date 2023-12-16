@@ -6,14 +6,7 @@ class USER(db.Model):
     username = db.Column(db.String(35), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     salt = db.Column(db.String(255), nullable=False)
-
-class Session(db.Model):
-    __tablename__ = 'session'
-    sessionid = db.Column(db.Integer, primary_key=True)
-    userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
-    token = db.Column(db.String(255))
-    startTime = db.Column(db.TIMESTAMP)
-    endTime = db.Column(db.TIMESTAMP)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
 class Expense(db.Model):
     __tablename__ = 'expense'
@@ -30,11 +23,13 @@ class Income(db.Model):
     amount = db.Column(db.Integer)
     source = db.Column(db.String(255))
     date = db.Column(db.DATE)
+    
 
 class Budget(db.Model):
-    __tablename__ = 'budget'
+    __tablename__ = 'budgets'
     budgetid = db.Column(db.Integer, primary_key=True)
     userid = db.Column(db.Integer, db.ForeignKey('USER.userid'), nullable=False)
-    amount = db.Column(db.Integer)
-    category = db.Column(db.String(255))
-    timeframe = db.Column(db.String(255))
+    total_budget = db.Column(db.DECIMAL(10, 2), nullable=False)
+    time_frame = db.Column(db.String(50))
+    creation_date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
+    last_modified_date = db.Column(db.DATE, nullable=False, default=db.func.current_date())
