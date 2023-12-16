@@ -11,12 +11,13 @@ T2A2 API WebServer
 
 In a terminal, run the following commands:
 
-1. `python3 -m venv venv`
-2. `venv/Scripts/activate` (Windows) or `source venv/bin/activate` (MacOS/Linux)
-3. `pip install -r requirements.txt`
-4. `flask run`
-5. `flask init-db`
-6. `flask seed-db`
+1. open src folder in terminal `cd FinleyJepson_T2A2/src` or `cd src` if already in FinleyJepson_T2A2 folder
+2. `python3 -m venv venv`
+3. `venv/Scripts/activate` (Windows) or `source venv/bin/activate` (MacOS/Linux)
+4. `pip install -r requirements.txt`
+5. `flask run`
+6. `flask init-db`
+7. `flask seed-db`
 
 ### Testing/Usage
 
