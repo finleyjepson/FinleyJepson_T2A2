@@ -157,27 +157,41 @@ def create_budget():
 @app.route('/budget', methods=['GET'])
 @jwt_required()
 def get_budget():
-    budget_id = request.args.get('id')
-    budget = Budget.query.get(budget_id)
-    return jsonify(budget), 200
+    budgetid = request.args.get('budgetid')
+    userid = get_jwt_identity()
+    if budgetid:
+        budgets = Budget.query.filter_by(userid=userid, budgetid=budgetid).all()
+    else:
+        budgets = Budget.query.filter_by(userid=userid).all()
+    return jsonify([budget.serialize() for budget in budgets]), 200
 
-@app.route('/budget/<int:id>', methods=['PUT'])
+@app.route('/budget', methods=['PUT'])
 @jwt_required()
-def update_budget(id):
-    data = request.get_json()
-    budget = Budget.query.get(id)
-    budget.total_budget = data['total_budget']
-    budget.time_frame = data['time_frame']
-    db.session.commit()
-    return jsonify(budget), 200
+def update_budget():
+    current_user = get_jwt_identity()
+    budget_id = request.args.get('budget_id')
+    budget = Budget.query.filter_by(budgetid=budget_id, userid=current_user).first()
+    if budget:
+        budget_data = request.args
+        budget.amount = budget_data.get('amount')
+        budget.time_frame = budget_data.get('time_frame')
+        db.session.commit()
+        return jsonify({'message': 'Budget updated successfully'}), 200
+    else:
+        return jsonify({'message': 'Budget not found'}), 404
 
-@app.route('/budget/<int:id>', methods=['DELETE'])
+@app.route('/budget', methods=['DELETE'])
 @jwt_required()
-def delete_budget(id):
-    budget = Budget.query.get(id)
-    db.session.delete(budget)
-    db.session.commit()
-    return jsonify({'message': 'Budget deleted'}), 200
+def delete_budget():
+    current_user = get_jwt_identity()
+    budget_id = request.args.get('budget_id')
+    budget = Budget.query.filter_by(budgetid=budget_id, userid=current_user).first()
+    if budget:
+        db.session.delete(budget)
+        db.session.commit()
+        return jsonify({'message': 'Budget deleted successfully'}), 200
+    else:
+        return jsonify({'message': 'Budget not found'}), 404
 
 @app.errorhandler(404)
 def not_found(error):
