@@ -24,4 +24,10 @@ def create_app():
     from .app import app as app_blueprint
     app.register_blueprint(app_blueprint)
 
+    from .cli_bp import cli_bp, init_db_command, seed_db_command
+    app.register_blueprint(cli_bp)
+    with app.app_context():
+        app.cli.add_command(init_db_command)
+        app.cli.add_command(seed_db_command)
+
     return app
