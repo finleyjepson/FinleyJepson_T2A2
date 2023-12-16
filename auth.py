@@ -2,7 +2,7 @@ from flask import request, jsonify, session, Blueprint
 import os
 import hashlib
 from . import db
-from .models import USER
+from .models import USER, Income, Expense, Budget
 import binascii
 from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token, get_jwt_identity
 from datetime import timedelta
@@ -73,25 +73,44 @@ def login():
 @jwt_required()
 def delete_user():
     user_id = request.args.get('userid')
-    current_user_id = get_jwt_identity()
-    current_user = USER.query.get(current_user_id)
-
-    if not current_user:
-        return jsonify({'message': 'User not found'}), 404
-
-    # Check if the current user is an admin
-    if not current_user.is_admin:
-        return jsonify({'message': 'Unauthorized'}), 401
+    current_user = get_jwt_identity()
 
     user = USER.query.get(user_id)
-
     if not user:
         return jsonify({'message': 'User not found'}), 404
+    
+    admins = USER.query.filter_by(is_admin=True).all()
+    admin_ids = [admin.userid for admin in admins]
+    if int(current_user) in admin_ids:
+        # Delete associated entries in Income table
+        incomes = Income.query.filter_by(userid=user_id).all()
+        for income in incomes:
+            db.session.delete(income)
 
-    db.session.delete(user)
-    db.session.commit()
+        # Delete associated entries in Expense table
+        expenses = Expense.query.filter_by(userid=user_id).all()
+        for expense in expenses:
+            db.session.delete(expense)
 
-    return jsonify({'message': 'User deleted'}), 200
+        # Delete associated entries in Budget table
+        budgets = Budget.query.filter_by(userid=user_id).all()
+        for budget in budgets:
+            db.session.delete(budget)
+
+        # Delete the user
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User and associated entries deleted'}), 200
+    
+    return jsonify({'message': 'Not authorized to access this resource'}), 401
+
+
+def is_admin():
+    current_user = get_jwt_identity()
+    stmt = db.select(USER).filter_by(userid=current_user)
+    user = db.session.scalar(stmt)
+    if not (user.is_admin):
+        jsonify({'message': 'Not authorized to access this resource'}), 401
 
 @auth.route('/logout', methods=['POST'])
 @jwt_required()
