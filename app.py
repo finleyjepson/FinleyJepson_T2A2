@@ -129,26 +129,30 @@ def create_budget():
     current_year, current_month = datetime.now().year, datetime.now().month
 
     incomes = Income.query.filter(
-                    Income.userid == current_user, 
-                    extract('year', Income.date) == current_year, 
-                    extract('month', Income.date) == current_month
-                ).all()
-    total_income = sum(Income.amount for Income in incomes)
+        Income.userid == current_user, 
+        extract('year', Income.date) == current_year, 
+        extract('month', Income.date) == current_month
+    ).all()
+    total_income = 0
+    for income in incomes:
+        total_income += income.amount
 
     expenses = Expense.query.filter(
                     Expense.userid == current_user, 
                     extract('year', Expense.date) == current_year, 
                     extract('month', Expense.date) == current_month
                 ).all()
-    total_expense = sum(Expense.amount for Expense in expenses)
+    total_expense = 0
+    for expense in expenses:
+        total_expense += expense.amount
 
     total_budget = total_income - total_expense
 
-    new_budget = Budget(total_budget=total_budget, time_frame=current_month)
+    new_budget = Budget(userid=current_user, total_budget=total_budget, time_frame=str(current_year)+'-'+str(current_month))
     db.session.add(new_budget)
     db.session.commit()
 
-    return jsonify(new_budget), 201
+    return jsonify(new_budget.to_dict()), 201
 
 @app.route('/budget', methods=['GET'])
 @jwt_required()
