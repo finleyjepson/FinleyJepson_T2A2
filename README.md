@@ -115,7 +115,7 @@ Returns:
 - A success message if the operation is successful.
 - An error message if the operation fails.
 
-### `GET`
+#### `GET`
 
 Description: Retrieves all incomes.
 
@@ -124,7 +124,7 @@ Returns:
 - A list of all incomes if the operation is successful.
 - An error message if the operation fails.
 
-### `PUT`
+#### `PUT`
 
 Description: Updates an income.
 
@@ -139,7 +139,7 @@ Returns:
 - A success message if the operation is successful.
 - An error message if the operation fails.
 
-### `DELETE`
+#### `DELETE`
 
 Description: Deletes an income.
 
