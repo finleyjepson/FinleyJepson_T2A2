@@ -2,7 +2,7 @@ from flask import jsonify, session, Blueprint
 from . import db
 from flask import request
 from .models import Income, Expense, Budget
-from datetime import datetime
+from datetime import date
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import extract
 
@@ -20,10 +20,9 @@ def manage_expenses():
             amount = request.args.get('amount')
             category = request.args.get('category')
             new_expense = Expense(
-                userid=session['userid'],
+                userid=current_user,
                 amount=amount,
-                category=category,
-                date=datetime.now()
+                category=category
             )
             db.session.add(new_expense)
             db.session.commit()
@@ -31,7 +30,7 @@ def manage_expenses():
         case 'DELETE':
             # Handle deleting expenses
             expense_id = request.args.get('expense_id')
-            expense = Expense.query.filter_by(expenseid=expense_id, userid=session['userid']).first()
+            expense = Expense.query.filter_by(expenseid=expense_id, userid=current_user).first()
             if expense:
                 db.session.delete(expense)
                 db.session.commit()
@@ -41,7 +40,7 @@ def manage_expenses():
         case 'PUT':
             # Handle editing expenses
             expense_id = request.args.get('expense_id')
-            expense = Expense.query.filter_by(expenseid=expense_id, userid=session['userid']).first()
+            expense = Expense.query.filter_by(expenseid=expense_id, userid=current_user).first()
             if expense:
                 expense_data = request.args
                 expense.amount = expense_data.get('amount')
@@ -52,11 +51,15 @@ def manage_expenses():
                 return jsonify({'message': 'Income not found'}), 404
         case 'GET':
             # Handle getting expenses
-            expenses = Expense.query.filter_by(userid=session['userid']).all()
+            expense_id = request.args.get('expense_id')
+            if expense_id:
+                expenses = Expense.query.filter_by(userid=current_user, expenseid=expense_id).all()
+            else:
+                expenses = Expense.query.filter_by(userid=current_user).all()
             expense_list = []
             for expense in expenses:
                 expense_data = {
-                    'incomeid': expense.incomeid,
+                    'expenseid': expense.expenseid,
                     'amount': expense.amount,
                     'category': expense.category,
                     'date': expense.date
@@ -78,8 +81,7 @@ def manage_incomes():
             new_income = Income(
                 userid=current_user,
                 amount=amount,
-                source=source,
-                date=datetime.now()
+                source=source
             )
             db.session.add(new_income)
             db.session.commit()
@@ -126,8 +128,9 @@ def manage_incomes():
 @jwt_required()
 def create_budget():
     current_user = get_jwt_identity()
-    current_year, current_month = datetime.now().year, datetime.now().month
+    current_year, current_month = date.now().year, date.now().month
 
+    # Calculate total income for the current month
     incomes = Income.query.filter(
         Income.userid == current_user, 
         extract('year', Income.date) == current_year, 
@@ -137,17 +140,20 @@ def create_budget():
     for income in incomes:
         total_income += income.amount
 
+    # Calculate total expense for the current month
     expenses = Expense.query.filter(
-                    Expense.userid == current_user, 
-                    extract('year', Expense.date) == current_year, 
-                    extract('month', Expense.date) == current_month
-                ).all()
+        Expense.userid == current_user, 
+        extract('year', Expense.date) == current_year, 
+        extract('month', Expense.date) == current_month
+    ).all()
     total_expense = 0
     for expense in expenses:
         total_expense += expense.amount
 
+    # Calculate total budget for the current month
     total_budget = total_income - total_expense
 
+    # Create a new budget entry in the database
     new_budget = Budget(userid=current_user, total_budget=total_budget, time_frame=str(current_year)+'-'+str(current_month))
     db.session.add(new_budget)
     db.session.commit()
@@ -157,27 +163,47 @@ def create_budget():
 @app.route('/budget', methods=['GET'])
 @jwt_required()
 def get_budget():
-    budgetid = request.args.get('budgetid')
-    userid = get_jwt_identity()
-    if budgetid:
-        budgets = Budget.query.filter_by(userid=userid, budgetid=budgetid).all()
+    # Get the budgetid from the request arguments
+    budget_id = request.args.get('budgetid')
+    # Get the userid from the JWT token
+    current_user = get_jwt_identity()
+
+    if budget_id:
+        # If budgetid is provided, filter budgets by userid and budgetid
+        budgets = Budget.query.filter_by(userid=current_user, budgetid=budget_id).all()
     else:
-        budgets = Budget.query.filter_by(userid=userid).all()
+        # If budgetid is not provided, filter budgets by userid only
+        budgets = Budget.query.filter_by(userid=current_user).all()
+
+    # Serialize the budgets into a JSON response
     return jsonify([budget.serialize() for budget in budgets]), 200
 
 @app.route('/budget', methods=['PUT'])
 @jwt_required()
 def update_budget():
     current_user = get_jwt_identity()
+
+    # Get the budget_id from the request arguments
     budget_id = request.args.get('budget_id')
+
+    # Find the budget with the given budget_id and current_user
     budget = Budget.query.filter_by(budgetid=budget_id, userid=current_user).first()
+
     if budget:
+        # Get the budget data from the request arguments
         budget_data = request.args
+
+        # Update the budget amount and time frame
         budget.amount = budget_data.get('amount')
         budget.time_frame = budget_data.get('time_frame')
+
+        # Commit the changes to the database
         db.session.commit()
+
+        # Return a success message
         return jsonify({'message': 'Budget updated successfully'}), 200
     else:
+        # Return an error message if the budget is not found
         return jsonify({'message': 'Budget not found'}), 404
 
 @app.route('/budget', methods=['DELETE'])
@@ -192,7 +218,6 @@ def delete_budget():
         return jsonify({'message': 'Budget deleted successfully'}), 200
     else:
         return jsonify({'message': 'Budget not found'}), 404
-
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'message': 'Not found'}), 404
