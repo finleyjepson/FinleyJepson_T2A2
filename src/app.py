@@ -106,6 +106,8 @@ def create_income():
 @jwt_required_and_user 
 def get_incomes(): 
     current_user = get_jwt_identity() 
+    # This query retrieves all income records associated with the current user
+    # filter_by is used to filter the results where userid matches the current user's id
     incomes = Income.query.filter_by(userid=current_user).all() 
     income_list = [] 
     for income in incomes: 
@@ -119,6 +121,8 @@ def get_incomes():
 def update_income(): 
     current_user = get_jwt_identity() 
     income_id = request.args.get('income_id') 
+    # This query retrieves the first income record where the incomeid matches the provided income_id
+    # and the userid matches the current user's id
     income = Income.query.filter_by(incomeid=income_id, userid=current_user).first() 
     if income: 
         income_data = request.args 
@@ -135,6 +139,8 @@ def update_income():
 def delete_income(): 
     current_user = get_jwt_identity() 
     income_id = request.args.get('income_id') 
+    # This query retrieves the first income record where the incomeid matches the provided income_id
+    # and the userid matches the current user's id
     income = Income.query.filter_by(incomeid=income_id, userid=current_user).first() 
     if income:
         db.session.delete(income) 
