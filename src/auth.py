@@ -4,7 +4,7 @@ import hashlib
 from . import db
 from .models import USER, Income, Expense, Budget
 import binascii
-from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 
 auth = Blueprint('auth', __name__)
@@ -79,10 +79,9 @@ def login():
 
     # If the password is correct, generate an access token and a refresh token
     if hashed_password == user.password:
-        expiry = timedelta(days=1)
+        expiry = timedelta(hours=3)
         access_token = create_access_token(identity=str(user.userid), expires_delta=expiry)
-        refresh_token = create_refresh_token(identity=str(user.userid), expires_delta=expiry)
-        return jsonify({"message": "Logged In", "user": user.username, "tokens":{"access_token": access_token, "refresh_token": refresh_token}}), 200
+        return jsonify({"message": "Logged In", "user": user.username, "tokens":{"access_token": access_token}}), 200
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
@@ -120,9 +119,3 @@ def delete_user():
         return jsonify({'message': 'User and associated entries deleted'}), 200
     
     return jsonify({'message': 'Not authorized to access this resource'}), 401
-
-@auth.route('/logout', methods=['POST'])
-@jwt_required()
-def logout():
-    session.clear()
-    return jsonify({'message': 'Logout successful'}), 200
