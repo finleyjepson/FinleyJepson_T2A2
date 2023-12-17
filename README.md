@@ -86,16 +86,6 @@ Returns:
 
 ---------------------------------
 
-### `POST /logout`
-
-**This endpoint is protected and requires a valid JWT token.**
-
-Description: Logs out a user.
-
-Parameters: None
-
-Returns: A success message.
-
 ### `DELETE /delete_user`
 
 **This endpoint is protected and requires a valid JWT token & admin privileges.**
