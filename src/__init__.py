@@ -1,13 +1,3 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from os import environ
-from dotenv import load_dotenv
-from flask_jwt_extended import JWTManager
-
-load_dotenv()
-
-db = SQLAlchemy()
-
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
@@ -18,6 +8,7 @@ load_dotenv()
 
 db = SQLAlchemy()
 
+# Create the Flask application
 def create_app():
     app = Flask(__name__)
     jwt = JWTManager(app)
@@ -28,7 +19,7 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
 
-    # Error handling
+    # Error handling 
     @app.errorhandler(400)
     def bad_request(error):
         return jsonify({'message': 'Bad Request'}), 400
@@ -55,10 +46,12 @@ def create_app():
     from .app import app as app_blueprint
     app.register_blueprint(app_blueprint)
 
-    from .cli_bp import cli_bp, init_db_command, seed_db_command
+    from .cli_bp import cli_bp, init_db_command, seed_db_command, reset_db_command
     app.register_blueprint(cli_bp)
+    # Add CLI commands
     with app.app_context():
         app.cli.add_command(init_db_command)
         app.cli.add_command(seed_db_command)
+        app.cli.add_command(reset_db_command)
 
     return app
