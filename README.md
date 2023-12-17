@@ -61,7 +61,9 @@ Description: Registers a new user.
 Parameters:
 
 - `username` (string): The username of the new user.
-- `password` (string): The password for the new user.
+  - Must be unique, at least 3 characters long, and contain only alphanumeric characters.
+- `password` (string): The password for the new user. 
+  - Must be at least 8 characters long, contain at least one digit and one alphabetic character, and not contain spaces.
 
 Returns:
 
