@@ -96,6 +96,16 @@ Parameters: None
 
 Returns: A success message.
 
+### `DELETE /delete_user`
+
+**This endpoint is protected and requires a valid JWT token & admin privileges.**
+
+Description: Deletes a user.
+
+Parameters:
+
+- `user_id` (Integer): The ID of the user to delete.
+
 ---------------------------------
 
 ### **`/income`**
@@ -108,7 +118,7 @@ Description: Adds a new income.
 
 Parameters:
 
-- `amount` (number): The amount of the income.
+- `amount` (Integer): The amount of the income.
 - `source` (string): The source of the income.
 
 Returns:
@@ -131,9 +141,9 @@ Description: Updates an income.
 
 Parameters:
 
-- `amount` (number): The updated amount of the income.
+- `amount` (Integer): The updated amount of the income.
 - `source` (string): The updated source of the income.
-- `income_id` (string): The ID of the income to update.
+- `income_id` (Integer): The ID of the income to update.
 
 Returns:
 
@@ -146,7 +156,7 @@ Description: Deletes an income.
 
 Parameters:
 
-- `income_id` (string): The ID of the income to delete.
+- `income_id` (Integer): The ID of the income to delete.
 
 Returns:
 
@@ -165,7 +175,7 @@ Description: Adds a new expense.
 
 Parameters:
 
-- `amount` (number): The amount of the expense.
+- `amount` (Integer): The amount of the expense.
 - `category` (string): The category of the expense.
 
 Returns:
@@ -179,7 +189,7 @@ Description: Retrieves all expenses.
 
 Parameters: 
 
-- `expense_id` (string): The ID of the expense to retrieve. If not provided, all expenses will be retrieved.
+- `expense_id` (Integer): The ID of the expense to retrieve. If not provided, all expenses will be retrieved.
 
 Returns:
 
@@ -192,9 +202,9 @@ Description: Updates an expense.
 
 Parameters:
 
-- `amount` (number): The updated amount of the expense.
+- `amount` (Integer): The updated amount of the expense.
 - `category` (string): The updated category of the expense.
-- `expense_id` (string): The ID of the expense to update.
+- `expense_id` (Integer): The ID of the expense to update.
 
 Returns:
 
@@ -227,7 +237,7 @@ Description: Adds a new budget.
 Parameters:
 
 - `name` (string): The name of the budget.
-- `amount` (number): The amount of the budget.
+- `amount` (Integer): The amount of the budget.
 - `category` (string): The category of the budget.
 
 Returns:
@@ -257,7 +267,7 @@ Description: Updates a budget.
 Parameters:
 
 - `name` (string): The updated name of the budget.
-- `amount` (number): The updated amount of the budget.
+- `amount` (Integer): The updated amount of the budget.
 - `category` (string): The updated category of the budget.
 
 Returns:
@@ -273,7 +283,7 @@ Description: Deletes a budget.
 
 Parameters:
 
-- `budget_id` (string): The ID of the budget to delete.
+- `budget_id` (Integer): The ID of the budget to delete.
 
 Returns:
 
