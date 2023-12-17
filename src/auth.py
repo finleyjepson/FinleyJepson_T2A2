@@ -9,14 +9,31 @@ from datetime import timedelta
 
 auth = Blueprint('auth', __name__)
 
+def is_valid_username(username):
+    # Validates if the username is a string, has at least 3 characters, and contains only alphanumeric characters.
+    return isinstance(username, str) and len(username) >= 3 and username.isalnum()
+
+def is_valid_password(password):
+    # Validates if the password is a string, has at least 8 characters, and contains at least one digit and one alphabetic character.
+    return isinstance(password, str) and len(password) >= 8 and any(char.isdigit() for char in password) and any(char.isalpha() for char in password)
+
+def sanitize_input(input_string):
+    # Remove leading and trailing whitespace
+    sanitized_input = input_string.strip()
+
+    # Replace any sequence of whitespace characters with a single space
+    sanitized_input = ' '.join(sanitized_input.split())
+
+    return sanitized_input
+
 @auth.route('/register', methods=['POST'])
 def register():
-    username = request.json['username']
-    password = request.json['password']
+    username = sanitize_input(request.args.get('username'))
+    password = sanitize_input(request.args.get('password'))
 
     # Check if username and password were provided
-    if not username or not password:
-        return jsonify({'message': 'Username and password are required'}), 400
+    if not username or not password or not is_valid_username(username) or not is_valid_password(password):
+        return jsonify({'message': 'Invalid or missing username and password'}), 400
 
     # Check if the username already exists in the database
     existing_user = USER.query.filter_by(username=username).first()
@@ -41,17 +58,17 @@ def register():
 @auth.route('/login', methods=['POST'])
 def login():
     # Get username and password from request arguments
-    username = request.args.get('username')
-    password = request.args.get('password')
+    username = sanitize_input(request.args.get('username'))
+    password = sanitize_input(request.args.get('password'))
 
     # Check that username and password are provided
-    if not username or not password:
-        return jsonify({'message': 'Username and password are required'}), 400
+    if not username or not password or not is_valid_username(username) or not is_valid_password(password):
+        return jsonify({'message': 'Invalid or missing username and password'}), 400
 
     # Find the user in the database
     user = USER.query.filter_by(username=username).first()
     if not user:
-        return jsonify({'message': 'Invalid username or password'}), 401
+        return jsonify({'message': 'Invalid or missing username and password'}), 401
 
     # Convert salt back to bytes
     salt = binascii.unhexlify(user.salt.encode('utf-8'))
