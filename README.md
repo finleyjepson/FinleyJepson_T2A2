@@ -496,3 +496,27 @@ In summary, the `USER` model is related to the `Expense`, `Income`, and `Budget`
 In this Flask application, A PostgreSQL database is implemented using the SQLAlchemy ORM. The database itself is hosted on ElephantSQL, a PostgreSQL database-as-a-service provider. The database is accessed via the `psycopg2` Python library, which is a PostgreSQL adapter for Python. The database consists of four tables: `USER`, `Expense`, `Income`, and `Budget`. The `USER` table stores user information, including the username and password. The `Expense`, `Income`, and `Budget` tables store expense, income, and budget entries, respectively. Each of these tables has a foreign key referencing the `USER` table, indicating that each expense, income, and budget entry is associated with a specific user.
 
 ## R10 - Task Allocation & Tracking
+
+In the project, I primarily used Trello for task management. Each day began with selecting tasks from the backlog, shifting them to `To Do`, and then to `Doing` as I worked on them. Once completed, I moved them to `Done`, checking the completed checkmark. Although I didn't take daily Trello screenshots, I recorded completed tasks, forming a chronological progress timeline. Additionally, the Discord #standups section at Coder Academy was invaluable for succinctly summarizing my daily progress, keeping me focused on my objectives. Frequent commits to GitHub were also crucial, providing a comprehensive history of the project's development and aiding in daily reviews. This blend of tools was key to managing my project efficiently and systematically.
+
+For this project i used Trello to track my progress and tasks. I used the following columns to track my progress:
+
+- `To Do`
+- `Doing`
+- `Done`
+
+When i created a new task i would add it to the `To Do` column and add a due date to the task. When i started working on a task i would move it to the `Doing` column and when i completed a task i would move it to the `Done` column. I would also add a checkmark to the task to indicate that it was completed. I would also add a description to the task to provide more information about the task.
+
+I found this method of tracking my progress to be very effective as it allowed me to see what tasks i had completed and what tasks i still needed to complete. It also allowed me to see how much progress i had made each day.
+
+In addition to using Trello to track my progress, I also used GitHub to track my progress. I would commit my changes to GitHub regularly after completing a task or every few hours. I found this to be very useful as it allowed me to see what changes i had made and when i made them. It also allowed me to revert back to previous versions of my code if i needed to.
+
+I also used the Discord #standups channel to provide a daily summary of my progress. I found this to be very useful as it allowed me to reflect on my progress and plan for the next day. It also allowed me to see what other students were working on and how they were progressing.
+
+![Alt text](docs/imgs/standups_1.png)
+
+![Alt text](docs/imgs/standups_2.png)
+
+![Alt text](docs/imgs/standups_3.png)
+
+![Alt text](docs/imgs/standups_4.png)
